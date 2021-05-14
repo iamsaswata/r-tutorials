@@ -1,19 +1,18 @@
-FROM rocker/geospatial:4.0.5
+FROM rocker/geospatial:4.0.3@sha256:9e00ab4fec7b38a0edbadb07e7554bf3b7fa34d15c6fe42522a09ae88d336219
 
-LABEL org.opencontainers.image.licenses="GPL-2.0-or-later" \
-      org.opencontainers.image.source="https://github.com/rocker-org/rocker-versioned2" \
-      org.opencontainers.image.vendor="Rocker Project" \
-      org.opencontainers.image.authors="Carl Boettiger <cboettig@ropensci.org>"
+# For compatibility with docker stacks
+ARG NB_USER="jovyan"
+ARG HOME=/home/$NB_USER
+ARG NB_UID="1000"
+ARG NB_GID="100"
 
-ENV NB_USER=rstudio
+USER root
+ENV PATH="/home/jovyan/.local/bin/:${PATH}"
 
+RUN apt-get update --yes \
+    && apt-get install --yes python3-pip tini language-pack-fr \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN /rocker_scripts/install_python.sh
-RUN /rocker_scripts/install_binder.sh
-
-
-CMD jupyter notebook --ip 0.0.0.0
-
-USER ${NB_USER}
-
-WORKDIR /home/${NB_USER}
+RUN /rocker_scripts/install_shiny_server.sh \
+    && pip3 install jupyter \
+    && rm -rf /var/lib/apt/lists/*
