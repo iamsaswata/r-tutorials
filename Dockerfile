@@ -1,5 +1,7 @@
-FROM rocker/geospatial:latest
-MAINTAINER "SNANDI" e.h.snandi@iitb.ac.in
+FROM rocker/binder:latest
 
-RUN install2.r --error --skipinstalled \
-        terra 
+# Copy repo into ${HOME}, make user own $HOME
+USER root
+COPY . ${HOME}
+RUN chown -R ${NB_USER} ${HOME}
+USER ${NB_USER}
